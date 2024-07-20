@@ -18,4 +18,4 @@ backend lb-backend
 
 echo "ENABLED=1" | sudo tee -a /etc/default/haproxy
 sudo service haproxy restart
-echo 'Configured HAproxy with servers: ["web-01", "web-02"]'
+echo '["web-01", "web-02"]'
