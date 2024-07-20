@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Install and configure HAproxy on your lb-01 server.
 # Make sure that HAproxy can be managed via an init script
+
 # Update package list and install HAproxy
 sudo apt-get -y update
 sudo apt-get -y install haproxy
 
-# Define server IPs (these should be the actual IP addresses of your web servers)
-WEB01_IP="54.209.211.244"
-WEB02_IP="54.196.244.48"
+# Backup existing HAproxy configuration
+sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
 
-# Configure HAproxy to send traffic to web-01 and web-02 using a roundrobin algorithm
+# Configure HAproxy to distribute traffic to web-01 and web-02 using a round-robin algorithm
 echo \
 "
 frontend lb-frontend
@@ -19,16 +19,19 @@ frontend lb-frontend
 
 backend lb-backend
         balance roundrobin
-        server web-01 ${WEB01_IP}:80 check
-        server web-02 ${WEB02_IP}:80 check
+        server web-01 54.209.211.244:80 check
+        server web-02 54.196.244.48:80 check
 " | sudo tee /etc/haproxy/haproxy.cfg > /dev/null
 
-# Enable HAproxy to be managed via an init script
+# Ensure HAproxy is managed via an init script
 echo "ENABLED=1" | sudo tee /etc/default/haproxy > /dev/null
 
 # Restart HAproxy to apply changes
 sudo service haproxy restart
 
-# Ensure HAproxy is enabled to start on boot
+# Enable HAproxy to start on boot
 sudo systemctl enable haproxy
+
+# Output message showing the configured servers
+echo 'Configured HAproxy with servers: ["web-01", "web-02"]'
 
